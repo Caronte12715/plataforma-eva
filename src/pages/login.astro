@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LoginEva from '../components/LoginEva.vue';
+---
+
+<Layout title="Acceso al Sistema | Plataforma Eva">
+  <div class="min-h-[70vh] flex flex-col justify-center items-center px-4 animate-fade-in">
+    
+    <div class="text-center mb-8">
+      <div class="bg-[#002855] w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl border-2 border-yellow-500">
+        <span class="text-white text-2xl font-black">E</span>
+      </div>
+      <h1 class="text-3xl font-black text-slate-800 tracking-tighter uppercase">Plataforma Eva</h1>
+      <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 font-mono">Cloud Management System</p>
+    </div>
+
+    <LoginEva client:load />
+    
+    <div class="mt-10 flex items-center gap-3 opacity-40">
+        <div class="h-px w-8 bg-slate-300"></div>
+        <p class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em]">AWS Region: us-east-2</p>
+        <div class="h-px w-8 bg-slate-300"></div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

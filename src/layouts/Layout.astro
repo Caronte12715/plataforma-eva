@@ -1,23 +1,68 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import '../styles/global.css';
+const { title } = Astro.props;
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+// Nota: En una fase avanzada, estas estadísticas vendrían de una consulta a DynamoDB
+const stats = {
+    total: 7, // Este número lo podemos hacer dinámico luego
+    region: "us-east-2"
+};
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+</head>
+<body class="bg-[#f8fafc] min-h-screen font-sans">
+    <nav class="bg-[#002855] border-b-4 border-yellow-500 shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 bg-white p-2 rounded-xl shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300">
+                        <svg class="h-8 w-8 text-[#002855]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            <path d="M12 6v4m0 0l-2-2m2 2l2-2" class="animate-bounce"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-white font-black text-xl tracking-tight leading-none">EVA</h1>
+                        <p class="text-yellow-400 text-[9px] font-bold uppercase tracking-[0.2em]">SISTEMA ACADÉMICO</p>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center gap-6">
+                    <div class="flex gap-4">
+                        <div class="text-right border-r border-white/10 pr-4">
+                            <p class="text-blue-200 text-[10px] font-bold uppercase">Estado Servidor</p>
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-white text-xs font-black">EN LÍNEA</span>
+                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-blue-200 text-[10px] font-bold uppercase">Región AWS</p>
+                            <p class="text-white text-xs font-black">{stats.region}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-10">
+        <slot />
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-8 text-center mt-20">
+        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">
+            © 2026 Colegio Profesora Eva Garciola de Mejía [cite: 14, 54]
+        </p>
+    </footer>
+</body>
+</html>
