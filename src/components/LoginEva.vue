@@ -1,60 +1,135 @@
 <template>
-  <div class="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border border-slate-100 animate-fade-in">
-    <form @submit.prevent="manejarLogin" class="space-y-6">
-      <div>
-        <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">Identificación de Usuario</label>
-        <input 
-          v-model="id" 
-          type="text" 
-          required
-          class="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-[#002855] focus:bg-white outline-none transition-all font-bold text-slate-700 shadow-inner"
-          placeholder="Ej: 2026010"
-        >
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-[2rem] shadow-2xl border border-slate-200 p-8">
+      <div class="mb-6 text-center">
+        <h2 class="text-2xl font-black text-[#002855] uppercase tracking-tight">
+          Iniciar sesión
+        </h2>
+        <p class="text-slate-400 text-sm mt-2">
+          Ingresa tu carnet o identificador institucional
+        </p>
       </div>
 
-      <button 
-        type="submit" 
-        :disabled="cargando"
-        class="w-full bg-[#002855] text-white font-black py-4 rounded-2xl shadow-lg hover:bg-blue-800 transition-all transform active:scale-95 disabled:bg-slate-300 flex items-center justify-center gap-3"
+      <form @submit.prevent="handleLogin" class="space-y-5">
+        <div>
+          <label
+            for="login-id"
+            class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2"
+          >
+            ID de acceso
+          </label>
+
+          <input
+            id="login-id"
+            v-model="id"
+            type="text"
+            autocomplete="username"
+            placeholder="Ej: 1001, 9001 o CPEG260014"
+            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-slate-800 font-bold outline-none focus:border-[#002855] focus:ring-2 focus:ring-blue-100 transition-all"
+            :disabled="loading"
+          />
+        </div>
+
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-[#002855] hover:bg-[#001d3d] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-2xl py-4 font-black uppercase tracking-[0.2em] shadow-xl transition-all"
+        >
+          {{ loading ? "VALIDANDO..." : "ENTRAR" }}
+        </button>
+      </form>
+
+      <div
+        v-if="error"
+        class="mt-5 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-semibold"
       >
-        <span v-if="cargando" class="animate-spin text-xl">🔄</span>
-        <span>{{ cargando ? 'VERIFICANDO...' : 'ENTRAR AL PANEL' }}</span>
-      </button>
-    </form>
+        {{ error }}
+      </div>
+
+      <div
+        v-if="success"
+        class="mt-5 rounded-2xl bg-green-50 border border-green-200 px-4 py-3 text-green-700 text-sm font-semibold"
+      >
+        Acceso correcto. Redirigiendo...
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-const id = ref('');
-const cargando = ref(false);
+const id = ref("");
+const loading = ref(false);
+const error = ref("");
+const success = ref(false);
 
-const manejarLogin = async () => {
-  if (!id.value) return;
-  cargando.value = true;
-  
-  try {
-    const res = await fetch(`/api/login?id=${id.value}`);
-    const datos = await res.json();
-
-    if (res.ok) {
-      // GUARDAMOS TODO LO NECESARIO EN EL NAVEGADOR
-      localStorage.setItem('user_rol', datos.rol || 'ESTUDIANTE');
-      localStorage.setItem('user_name', datos.nombre);
-      localStorage.setItem('user_grado', datos.grado);
-      
-      // NOTA: Guardamos la materia para que el sistema sepa qué califica este maestro
-      localStorage.setItem('user_materia', datos.materia || '');
-      
-      window.location.href = '/';
-    } else {
-      alert("⚠️ AWS dice: " + (datos.error || "ID no encontrado"));
-    }
-  } catch (e) {
-    alert("❌ Error de conexión");
-  } finally {
-    cargando.value = false;
+function normalizeValue(value, fallback = "") {
+  if (value === null || value === undefined || value === "undefined" || value === "null") {
+    return fallback;
   }
-};
+  return String(value);
+}
+
+async function handleLogin() {
+  error.value = "";
+  success.value = false;
+
+  const cleanId = id.value.trim().toUpperCase();
+
+  if (!cleanId) {
+    error.value = "Debes ingresar un ID válido.";
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: cleanId }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "No se pudo iniciar sesión.");
+    }
+
+    const rol = normalizeValue(data.rol, "ALUMNO").toUpperCase();
+
+    let dashboardId = "---";
+
+    if (rol === "ALUMNO") {
+      dashboardId = normalizeValue(data.PK, "---").toUpperCase();
+    } else {
+      dashboardId = normalizeValue(data.nie || data.PK, "---").toUpperCase();
+    }
+
+    localStorage.setItem("user_name", normalizeValue(data.nombre, "Usuario"));
+    localStorage.setItem("user_id", dashboardId);
+    localStorage.setItem("user_nie", normalizeValue(data.nie, ""));
+    localStorage.setItem("user_pk", normalizeValue(data.PK, ""));
+    localStorage.setItem("user_direccion", normalizeValue(data.direccion, "San Miguel, ES"));
+    localStorage.setItem("user_encargado", normalizeValue(data.responsable, "No asignado"));
+    localStorage.setItem("user_rol", rol);
+    localStorage.setItem("user_alergias", normalizeValue(data.salud, "Ninguna"));
+    localStorage.setItem("user_grado", normalizeValue(data.grado, "---"));
+    localStorage.setItem("user_seccion", normalizeValue(data.seccion, ""));
+    localStorage.setItem("user_materia", normalizeValue(data.materia, "General"));
+
+    success.value = true;
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 700);
+  } catch (err) {
+    error.value = err.message || "Ocurrió un error inesperado.";
+  } finally {
+    loading.value = false;
+  }
+}
 </script>

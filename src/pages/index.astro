@@ -1,98 +1,292 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import RegistroAlumno from "../components/RegistroAlumno.vue";
-import ListaAlumnos from "../components/ListaAlumnos.vue";
-import ReporteGrados from "../components/ReporteGrados.vue";
-import GestionNotas from "../components/GestionNotas.vue";
+import AulaVirtual from "../components/AulaVirtual.vue";
 import BoletaNotas from "../components/BoletaNotas.vue";
-import AulaVirtual from "../components/AulaVirtual.vue"; // <--- NUEVO
+import RegistroAlumno from "../components/RegistroAlumno.vue";
+import ListaMatriculados from "../components/ListaMatriculados.vue";
 ---
 
-<Layout title="Dashboard | Plataforma Eva">
-  <div class="max-w-7xl mx-auto px-4 mb-8">
-    <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 bg-[#002855] rounded-2xl flex items-center justify-center shadow-lg border-b-4 border-yellow-500">
-          <span class="text-white text-2xl font-black italic">E</span>
+<Layout title="Dashboard | CPEG Virtual">
+  <main class="min-h-screen bg-[#f1f5f9] pb-20 font-sans italic">
+    <div class="max-w-7xl mx-auto px-4 pt-8 mb-8">
+      <div
+        id="perfil-card"
+        class="relative bg-[#002855] rounded-[3rem] shadow-2xl border-b-[10px] border-[#fbbf24] p-10 overflow-hidden"
+      >
+        <div class="absolute top-8 right-10 z-30">
+          <button
+            id="logout-final"
+            type="button"
+            class="relative z-30 bg-[#e11d48] hover:bg-red-700 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg transition-all inline-flex items-center gap-2 italic cursor-pointer"
+          >
+            SALIR <span class="text-xs pointer-events-none">🚪</span>
+          </button>
         </div>
-        <div>
-          <h2 class="text-2xl font-black text-slate-800 tracking-tighter" id="welcome-msg">Cargando...</h2>
-          <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest" id="role-badge">Verificando...</p>
+
+        <div class="flex flex-col md:flex-row gap-12 items-center">
+          <div class="relative">
+            <div class="w-48 h-48 bg-[#fbbf24] rounded-[2.5rem] p-1 shadow-2xl flex items-center justify-center border-4 border-white/20">
+              <span id="user-initials" class="text-6xl font-black text-[#002855]">CPEG</span>
+            </div>
+
+            <div
+              id="med-alert"
+              class="hidden absolute -top-4 -right-4 bg-red-600 text-white w-14 h-14 rounded-full items-center justify-center border-4 border-white shadow-2xl animate-pulse"
+            >
+              <span class="text-3xl">⚠️</span>
+            </div>
+          </div>
+
+          <div class="flex-1 text-white">
+            <div class="mb-8">
+              <h1
+                id="txt-perfil-tipo"
+                class="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 opacity-90 mb-2 italic"
+              >
+                FICHA DIGITAL CPEG
+              </h1>
+              <h2 id="welcome-msg" class="text-5xl font-black tracking-tighter italic">
+                ¡Hola, Usuario!
+              </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p id="label-id" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
+                  ID Estudiantil
+                </p>
+                <p id="user-id" class="font-bold text-sm text-white italic tracking-widest">---</p>
+              </div>
+
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p id="label-direccion" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
+                  Dirección
+                </p>
+                <p id="user-dir" class="font-bold text-sm text-white italic truncate">---</p>
+              </div>
+
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">Año lectivo</p>
+                <p class="font-bold text-sm text-white italic">2026</p>
+              </div>
+
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p id="label-bloque-4" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
+                  Especialidad / Materia
+                </p>
+                <p id="user-materia" class="font-bold text-sm text-white italic">General</p>
+              </div>
+
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p id="label-bloque-5" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
+                  Responsable
+                </p>
+                <p id="user-encargado" class="font-bold text-sm text-white italic">---</p>
+              </div>
+
+              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
+                <p id="label-bloque-6" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
+                  Nivel / Grado
+                </p>
+                <p id="user-grado" class="font-bold text-sm text-white italic">---</p>
+              </div>
+            </div>
+
+            <div id="badges-container" class="mt-8">
+              <span
+                id="badge-rol"
+                class="bg-[#2d4a77] text-white text-[10px] font-black px-6 py-2 rounded-full border border-white/20 uppercase italic tracking-widest shadow-lg"
+              >
+                CARGANDO...
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      <button onclick="localStorage.clear(); window.location.href='/login';" class="bg-red-50 text-red-600 px-6 py-3 rounded-2xl font-black text-xs hover:bg-red-600 hover:text-white transition-all shadow-sm flex items-center gap-2">
-        CERRAR SESIÓN 🚪
-      </button>
     </div>
-  </div>
 
-  <div class="max-w-7xl mx-auto px-4 mb-10 flex gap-4 overflow-x-auto pb-2">
-    <button onclick="cambiarTab('registros')" id="btn-registros" class="bg-[#002855] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all whitespace-nowrap">
-      📊 Registros y Notas
-    </button>
-    <button onclick="cambiarTab('aula')" id="btn-aula" class="bg-white text-slate-400 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:shadow-lg transition-all border border-slate-100 whitespace-nowrap">
-      🎥 Aula Virtual
-    </button>
-  </div>
+    <div class="max-w-7xl mx-auto px-4 mb-10">
+      <div class="flex gap-4 p-2 bg-white rounded-[2rem] shadow-xl border border-slate-200">
+        <button
+          id="nav-1"
+          class="flex-1 py-5 rounded-[1.5rem] font-black text-[11px] bg-[#002855] text-white shadow-xl uppercase tracking-[0.2em] transition-all italic text-center"
+        >
+          REGISTROS
+        </button>
 
-  <div id="tab-registros" class="animate-fade-in">
-    <div id="panel-docente" class="hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start px-4 mb-12">
-        <RegistroAlumno client:load />
-        <ReporteGrados client:load />
-      </div>
-      <div class="px-4 mb-12">
-        <GestionNotas client:load />
+        <button
+          id="nav-2"
+          class="flex-1 py-5 rounded-[1.5rem] font-black text-[11px] text-slate-400 uppercase tracking-[0.2em] transition-all italic text-center"
+        >
+          AULA VIRTUAL
+        </button>
       </div>
     </div>
-    <div id="panel-estudiante" class="hidden px-4 mb-12">
-      <BoletaNotas client:load />
+
+    <div id="section-1" class="block px-4 max-w-7xl mx-auto animate-fade-in">
+      <div id="ui-alumno" class="hidden">
+        <BoletaNotas client:only="vue" />
+      </div>
+
+      <div id="ui-maestro" class="hidden">
+        <RegistroAlumno client:only="vue" />
+      </div>
+
+      <div id="ui-admin" class="hidden">
+        <ListaMatriculados client:only="vue" />
+      </div>
     </div>
-    <div class="px-4 mb-20">
+
+    <div id="section-2" class="hidden px-4 max-w-7xl mx-auto animate-fade-in">
       <AulaVirtual client:only="vue" />
     </div>
-  </div>
-
-  <div id="tab-aula" class="hidden animate-fade-in px-4">
-     <AulaVirtual client:load />
-  </div>
-
+  </main>
 </Layout>
 
 <script is:inline>
-  function cambiarTab(tab) {
-    const tabRegistros = document.getElementById('tab-registros');
-    const tabAula = document.getElementById('tab-aula');
-    const btnRegistros = document.getElementById('btn-registros');
-    const btnAula = document.getElementById('btn-aula');
+  function byId(id) {
+    return document.getElementById(id);
+  }
 
-    if (tab === 'registros') {
-      tabRegistros.classList.remove('hidden');
-      tabAula.classList.add('hidden');
-      btnRegistros.className = "bg-[#002855] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl";
-      btnAula.className = "bg-white text-slate-400 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-slate-100";
+  function setText(id, value) {
+    const el = byId(id);
+    if (el) el.innerText = value;
+  }
+
+  function getSafeStorage(key, fallback = "") {
+    const value = localStorage.getItem(key);
+    if (value === null || value === undefined || value === "undefined" || value === "null") {
+      return fallback;
+    }
+    return value;
+  }
+
+  function cleanUserId(rawId) {
+    if (!rawId || rawId === "undefined") return "---";
+    return String(rawId).toUpperCase();
+  }
+
+  function getInitials(nombre, rol) {
+    if (rol === "DOCENTE") return "DOC";
+    if (rol === "ADMIN") return "ADM";
+    if (!nombre || nombre === "Usuario") return "CPEG";
+
+    const partes = nombre.trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[1][0]).toUpperCase();
+  }
+
+  function setActiveTab(activeButton, inactiveButton) {
+    activeButton.className =
+      "flex-1 py-5 rounded-[1.5rem] font-black text-[11px] bg-[#002855] text-white shadow-xl uppercase tracking-[0.2em] transition-all italic text-center";
+
+    inactiveButton.className =
+      "flex-1 py-5 rounded-[1.5rem] font-black text-[11px] text-slate-400 uppercase tracking-[0.2em] transition-all italic text-center";
+  }
+
+  function setup() {
+    const rol = getSafeStorage("user_rol", "ALUMNO").toUpperCase();
+    const nombre = getSafeStorage("user_name", "Usuario");
+    const rawId = getSafeStorage("user_id", "---");
+    const alergias = getSafeStorage("user_alergias", "Ninguna");
+    const grado = getSafeStorage("user_grado", "---");
+    const seccion = getSafeStorage("user_seccion", "");
+    const direccion = getSafeStorage("user_direccion", "San Miguel, ES");
+    const encargado = getSafeStorage("user_encargado", "No asignado");
+    const materia = getSafeStorage("user_materia", "General");
+
+    const cleanId = cleanUserId(rawId);
+
+    setText("welcome-msg", `¡Hola, ${nombre}!`);
+    setText("user-id", cleanId);
+    setText("user-dir", direccion);
+    setText("user-encargado", encargado);
+    setText("user-materia", materia);
+    setText("user-initials", getInitials(nombre, rol));
+
+    const uiAlumno = byId("ui-alumno");
+    const uiMaestro = byId("ui-maestro");
+    const uiAdmin = byId("ui-admin");
+    const medAlert = byId("med-alert");
+    const nav1 = byId("nav-1");
+    const nav2 = byId("nav-2");
+    const s1 = byId("section-1");
+    const s2 = byId("section-2");
+    const logout = byId("logout-final");
+
+    if (uiAlumno) uiAlumno.classList.add("hidden");
+    if (uiMaestro) uiMaestro.classList.add("hidden");
+    if (uiAdmin) uiAdmin.classList.add("hidden");
+
+    if (rol === "DOCENTE") {
+      setText("txt-perfil-tipo", "FICHA PROFESIONAL DOCENTE CPEG");
+      setText("label-id", "ID Docente");
+      setText("label-bloque-4", "Cargo");
+      setText("label-bloque-5", "Área académica");
+      setText("label-bloque-6", "Nivel / Grado");
+
+      setText("user-materia", materia === "General" ? "Docente" : materia);
+      setText("user-encargado", "Planta docente");
+      setText("user-grado", "Planta Docente");
+      setText("badge-rol", "DOCENTE ACTIVO");
+
+      if (nav1) nav1.innerText = "GESTIÓN DE MATRÍCULA";
+      if (uiMaestro) uiMaestro.classList.remove("hidden");
+    } else if (rol === "ADMIN") {
+      setText("txt-perfil-tipo", "PANEL ADMINISTRATIVO CPEG");
+      setText("label-id", "ID Administrador");
+      setText("label-bloque-4", "Cargo");
+      setText("label-bloque-5", "Función");
+      setText("label-bloque-6", "Acceso");
+
+      setText("user-materia", "Administrador");
+      setText("user-encargado", "Control de matrículas");
+      setText("user-grado", "Acceso total");
+      setText("badge-rol", "ADMINISTRADOR ACTIVO");
+
+      if (nav1) nav1.innerText = "MATRÍCULAS";
+      if (uiAdmin) uiAdmin.classList.remove("hidden");
     } else {
-      tabRegistros.classList.add('hidden');
-      tabAula.classList.remove('hidden');
-      btnAula.className = "bg-[#002855] text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl";
-      btnRegistros.className = "bg-white text-slate-400 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-slate-100";
+      setText("txt-perfil-tipo", "EXPEDIENTE ACADÉMICO DIGITAL");
+      setText("label-id", "CÓDIGO ESTUDIANTIL");
+      setText("label-bloque-4", "Especialidad / Materia");
+      setText("label-bloque-5", "Responsable");
+      setText("label-bloque-6", "Nivel / Grado");
+
+      setText("user-grado", seccion ? `${grado} - Secc. "${seccion}"` : grado);
+      setText("badge-rol", "ESTUDIANTE ACTIVO");
+
+      if (uiAlumno) uiAlumno.classList.remove("hidden");
+
+      if (medAlert && alergias.toUpperCase() !== "NINGUNA" && alergias !== "---") {
+        medAlert.classList.remove("hidden");
+        medAlert.classList.add("flex");
+      }
+    }
+
+    if (nav1 && nav2 && s1 && s2) {
+      nav1.onclick = () => {
+        s1.classList.remove("hidden");
+        s2.classList.add("hidden");
+        setActiveTab(nav1, nav2);
+      };
+
+      nav2.onclick = () => {
+        s2.classList.remove("hidden");
+        s1.classList.add("hidden");
+        setActiveTab(nav2, nav1);
+      };
+
+      setActiveTab(nav1, nav2);
+    }
+
+    if (logout) {
+      logout.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "/login";
+      });
     }
   }
 
-  function verificarAcceso() {
-    const rol = localStorage.getItem("user_rol");
-    const nombre = localStorage.getItem("user_name");
-    if (!rol) { window.location.href = "/login"; return; }
-
-    document.getElementById("welcome-msg").innerText = `¡Hola, ${nombre}!`;
-    document.getElementById("role-badge").innerText = `Nivel: ${rol}`;
-
-    const panelDocente = document.getElementById("panel-docente");
-    const panelEstudiante = document.getElementById("panel-estudiante");
-
-    if (rol === "DOCENTE") { panelDocente.classList.remove("hidden"); }
-    else { panelEstudiante.classList.remove("hidden"); }
-  }
-
-  verificarAcceso();
+  document.addEventListener("DOMContentLoaded", setup);
 </script>
