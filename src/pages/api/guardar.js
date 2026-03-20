@@ -23,11 +23,9 @@ function formatearCodigoAlumno(numero) {
 
 function normalizarResponsable(responsable) {
   if (!responsable) return "No asignado";
-
   if (typeof responsable === "object") {
     return responsable.nombre || responsable.name || "No asignado";
   }
-
   return String(responsable).trim() || "No asignado";
 }
 
@@ -57,7 +55,6 @@ async function generarSiguienteCodigoAlumno() {
 export async function POST({ request }) {
   try {
     const datos = await request.json();
-
     const nuevoPK = await generarSiguienteCodigoAlumno();
 
     const item = {
@@ -103,6 +100,9 @@ export async function POST({ request }) {
       estadoMatricula: datos.estadoMatricula || "PENDIENTE",
       fechaMatricula: datos.fechaMatricula || "",
       fechaRegistro: new Date().toISOString(),
+
+      password: nuevoPK,
+      mustChangePassword: true,
     };
 
     await docClient.send(
@@ -116,12 +116,14 @@ export async function POST({ request }) {
       JSON.stringify({
         mensaje: "Guardado correctamente",
         item,
+        credencialTemporal: {
+          usuario: nuevoPK,
+          passwordTemporal: nuevoPK,
+        },
       }),
       {
         status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     );
   } catch (error) {
@@ -131,9 +133,7 @@ export async function POST({ request }) {
       }),
       {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

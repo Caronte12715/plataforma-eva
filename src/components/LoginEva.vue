@@ -6,7 +6,7 @@
           Iniciar sesión
         </h2>
         <p class="text-slate-400 text-sm mt-2">
-          Ingresa tu carnet o identificador institucional
+          Ingresa tu identificador y contraseña
         </p>
       </div>
 
@@ -24,7 +24,26 @@
             v-model="id"
             type="text"
             autocomplete="username"
-            placeholder="Ej: 1001, 9001 o CPEG260014"
+            placeholder="Ej: 9001, 1001 o CPEG260014"
+            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-slate-800 font-bold outline-none focus:border-[#002855] focus:ring-2 focus:ring-blue-100 transition-all"
+            :disabled="loading"
+          />
+        </div>
+
+        <div>
+          <label
+            for="login-password"
+            class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2"
+          >
+            Contraseña
+          </label>
+
+          <input
+            id="login-password"
+            v-model="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Ingresa tu contraseña"
             class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-slate-800 font-bold outline-none focus:border-[#002855] focus:ring-2 focus:ring-blue-100 transition-all"
             :disabled="loading"
           />
@@ -60,6 +79,7 @@
 import { ref } from "vue";
 
 const id = ref("");
+const password = ref("");
 const loading = ref(false);
 const error = ref("");
 const success = ref(false);
@@ -76,9 +96,15 @@ async function handleLogin() {
   success.value = false;
 
   const cleanId = id.value.trim().toUpperCase();
+  const cleanPassword = password.value;
 
   if (!cleanId) {
     error.value = "Debes ingresar un ID válido.";
+    return;
+  }
+
+  if (!cleanPassword) {
+    error.value = "Debes ingresar tu contraseña.";
     return;
   }
 
@@ -90,7 +116,7 @@ async function handleLogin() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: cleanId }),
+      body: JSON.stringify({ id: cleanId, password: cleanPassword }),
     });
 
     const data = await res.json();
@@ -120,11 +146,16 @@ async function handleLogin() {
     localStorage.setItem("user_grado", normalizeValue(data.grado, "---"));
     localStorage.setItem("user_seccion", normalizeValue(data.seccion, ""));
     localStorage.setItem("user_materia", normalizeValue(data.materia, "General"));
+    localStorage.setItem("must_change_password", String(Boolean(data.mustChangePassword)));
 
     success.value = true;
 
     setTimeout(() => {
-      window.location.href = "/";
+      if (data.mustChangePassword) {
+        window.location.href = "/cambiar-password";
+      } else {
+        window.location.href = "/";
+      }
     }, 700);
   } catch (err) {
     error.value = err.message || "Ocurrió un error inesperado.";

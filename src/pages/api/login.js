@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
 const client = new DynamoDBClient({
   region: "us-east-2",
@@ -10,23 +10,16 @@ const client = new DynamoDBClient({
 });
 
 const docClient = DynamoDBDocumentClient.from(client);
+const TableName = "PlataformaEva";
 
 function buildLookupKeys(idRaw) {
   const id = String(idRaw || "").trim().toUpperCase();
 
   if (!id) return [];
 
-  if (/^9\d{3}$/.test(id)) {
-    return [`ADMIN#${id}`];
-  }
-
-  if (/^1\d{3}$/.test(id)) {
-    return [`DOCENTE#${id}`];
-  }
-
-  if (/^CPEG\d{6}$/.test(id)) {
-    return [id];
-  }
+  if (/^9\d{3}$/.test(id)) return [`ADMIN#${id}`];
+  if (/^1\d{3}$/.test(id)) return [`DOCENTE#${id}`];
+  if (/^CPEG\d{6}$/.test(id)) return [id];
 
   return [
     id,
@@ -38,36 +31,52 @@ function buildLookupKeys(idRaw) {
   ];
 }
 
+async function findAlumnoByNIE(nie) {
+  const result = await docClient.send(
+    new ScanCommand({
+      TableName,
+      FilterExpression: "SK = :sk AND rol = :rol AND nie = :nie",
+      ExpressionAttributeValues: {
+        ":sk": "PERFIL",
+        ":rol": "ALUMNO",
+        ":nie": String(nie || "").trim(),
+      },
+    })
+  );
+
+  return result.Items?.[0] || null;
+}
+
 export async function POST({ request }) {
   try {
     const body = await request.json();
     const id = (body?.id || "").toString().trim();
+    const password = (body?.password || "").toString();
 
     if (!id) {
-      return new Response(
-        JSON.stringify({ error: "Debes enviar un ID válido" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Debes enviar un ID válido" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    const TableName = "PlataformaEva";
-    const intentos = buildLookupKeys(id);
+    if (!password) {
+      return new Response(JSON.stringify({ error: "Debes ingresar tu contraseña" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
+    const intentos = buildLookupKeys(id);
     let Item = null;
 
     for (const pk of intentos) {
-      const command = new GetCommand({
-        TableName,
-        Key: {
-          PK: pk,
-          SK: "PERFIL",
-        },
-      });
-
-      const res = await docClient.send(command);
+      const res = await docClient.send(
+        new GetCommand({
+          TableName,
+          Key: { PK: pk, SK: "PERFIL" },
+        })
+      );
 
       if (res.Item) {
         Item = res.Item;
@@ -75,20 +84,34 @@ export async function POST({ request }) {
       }
     }
 
-    if (!Item) {
-      return new Response(
-        JSON.stringify({ error: "Carnet no encontrado" }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+    if (!Item && /^\d{7,8}$/.test(id)) {
+      Item = await findAlumnoByNIE(id);
     }
 
-    return new Response(JSON.stringify(Item), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    if (!Item) {
+      return new Response(JSON.stringify({ error: "Carnet no encontrado" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (String(Item.password || "") !== password) {
+      return new Response(JSON.stringify({ error: "Contraseña incorrecta" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(
+      JSON.stringify({
+        ...Item,
+        password: undefined,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message || "Error interno del servidor" }),

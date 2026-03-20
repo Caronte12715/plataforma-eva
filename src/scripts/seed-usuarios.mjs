@@ -28,8 +28,10 @@ async function main() {
     direccion: "San Miguel, ES",
     rol: "ADMIN",
     materia: "Administrador",
-    responsable: "Control de matrículas",
-    grado: "Acceso total",
+    responsable: "Gestión institucional",
+    grado: "Control total",
+    password: "Admin9001!",
+    mustChangePassword: false,
     fechaRegistro: new Date().toISOString(),
   };
 
@@ -40,9 +42,11 @@ async function main() {
     nie: "1001",
     direccion: "San Miguel, ES",
     rol: "DOCENTE",
-    materia: "Docente",
-    responsable: "Planta docente",
-    grado: "Planta Docente",
+    materia: "Docencia",
+    responsable: "Consulta académica",
+    grado: "Alumnos asignados",
+    password: "Doc1001!",
+    mustChangePassword: false,
     fechaRegistro: new Date().toISOString(),
   };
 
@@ -51,7 +55,6 @@ async function main() {
 
   console.log("Usuarios base creados correctamente");
 }
-
 main().catch((err) => {
   console.error("Error:", err);
 });
