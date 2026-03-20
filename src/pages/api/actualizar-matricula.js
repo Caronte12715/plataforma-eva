@@ -64,6 +64,8 @@ export async function PUT({ request }) {
       ...(body.direccion !== undefined ? { direccion: body.direccion } : {}),
       ...(body.salud !== undefined ? { salud: body.salud } : {}),
       ...(body.estadoMatricula !== undefined ? { estadoMatricula: body.estadoMatricula } : {}),
+      ...(body.docenteId !== undefined ? { docenteId: String(body.docenteId || "").trim().toUpperCase() } : {}),
+      ...(body.docenteAsignado !== undefined ? { docenteAsignado: String(body.docenteAsignado || "").trim() } : {}),
       fechaActualizacion: new Date().toISOString(),
     };
 

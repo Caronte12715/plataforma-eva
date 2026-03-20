@@ -12,27 +12,51 @@ const client = new DynamoDBClient({
 const docClient = DynamoDBDocumentClient.from(client);
 const TableName = "PlataformaEva";
 
-export async function GET() {
+function normalizarTexto(valor) {
+  return String(valor || "").trim().toUpperCase();
+}
+
+export async function GET({ url }) {
   try {
+    const docenteId = normalizarTexto(url.searchParams.get("docenteId"));
+    const docenteNombre = normalizarTexto(url.searchParams.get("docenteNombre"));
+    const scope = normalizarTexto(url.searchParams.get("scope"));
+
     const result = await docClient.send(
       new ScanCommand({
         TableName,
       })
     );
 
-    const items = (result.Items || [])
+    let items = (result.Items || [])
       .filter((item) => item?.SK === "PERFIL")
       .filter((item) => item?.rol === "ALUMNO")
       .filter((item) => /^CPEG\d{6}$/i.test(item?.PK || ""))
       .map((item) => ({
         ...item,
         PK: String(item.PK || "").toUpperCase(),
-      }))
-      .sort((a, b) => {
-        const fechaA = a.fechaRegistro || "";
-        const fechaB = b.fechaRegistro || "";
-        return fechaB.localeCompare(fechaA);
+        docenteId: String(item.docenteId || "").toUpperCase(),
+        docenteAsignado: String(item.docenteAsignado || ""),
+      }));
+
+    if (scope === "DOCENTE") {
+      items = items.filter((item) => {
+        const matchById =
+          docenteId && normalizarTexto(item.docenteId) === docenteId;
+
+        const matchByName =
+          docenteNombre &&
+          normalizarTexto(item.docenteAsignado) === docenteNombre;
+
+        return matchById || matchByName;
       });
+    }
+
+    items.sort((a, b) => {
+      const fechaA = a.fechaRegistro || "";
+      const fechaB = b.fechaRegistro || "";
+      return fechaB.localeCompare(fechaA);
+    });
 
     return new Response(JSON.stringify({ items }), {
       status: 200,

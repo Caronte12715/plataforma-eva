@@ -70,6 +70,26 @@
                   <option>Académico</option>
                 </select>
               </div>
+
+              <div>
+                <label class="label">ID docente asignado</label>
+                <input
+                  v-model="form.docenteId"
+                  type="text"
+                  class="field"
+                  placeholder="Ej: 1001"
+                />
+              </div>
+
+              <div>
+                <label class="label">Docente asignado</label>
+                <input
+                  v-model="form.docenteAsignado"
+                  type="text"
+                  class="field"
+                  placeholder="Ej: Juan Polanco"
+                />
+              </div>
             </div>
           </section>
 
@@ -86,41 +106,22 @@
             <div class="border-t border-slate-200 pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label class="label">Nombres</label>
-                <input
-                  v-model="form.nombres"
-                  type="text"
-                  class="field"
-                  placeholder="Nombres del estudiante"
-                />
+                <input v-model="form.nombres" type="text" class="field" placeholder="Nombres del estudiante" />
               </div>
 
               <div>
                 <label class="label">Apellidos</label>
-                <input
-                  v-model="form.apellidos"
-                  type="text"
-                  class="field"
-                  placeholder="Apellidos del estudiante"
-                />
+                <input v-model="form.apellidos" type="text" class="field" placeholder="Apellidos del estudiante" />
               </div>
 
               <div>
                 <label class="label">NIE</label>
-                <input
-                  v-model="form.nie"
-                  type="text"
-                  class="field"
-                  placeholder="0000000"
-                />
+                <input v-model="form.nie" type="text" class="field" placeholder="0000000" />
               </div>
 
               <div>
                 <label class="label">Fecha de nacimiento</label>
-                <input
-                  v-model="form.fechaNacimiento"
-                  type="date"
-                  class="field"
-                />
+                <input v-model="form.fechaNacimiento" type="date" class="field" />
               </div>
 
               <div>
@@ -133,22 +134,12 @@
 
               <div>
                 <label class="label">Teléfono del estudiante</label>
-                <input
-                  v-model="form.telefonoEstudiante"
-                  type="text"
-                  class="field"
-                  placeholder="0000-0000"
-                />
+                <input v-model="form.telefonoEstudiante" type="text" class="field" placeholder="0000-0000" />
               </div>
 
               <div class="md:col-span-2">
                 <label class="label">Dirección exacta de residencia</label>
-                <input
-                  v-model="form.direccion"
-                  type="text"
-                  class="field"
-                  placeholder="Cantón, colonia, calle, municipio y departamento"
-                />
+                <input v-model="form.direccion" type="text" class="field" placeholder="Cantón, colonia, calle, municipio y departamento" />
               </div>
             </div>
           </section>
@@ -166,12 +157,7 @@
             <div class="border-t border-slate-200 pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label class="label">Nombre completo del responsable</label>
-                <input
-                  v-model="form.responsable"
-                  type="text"
-                  class="field"
-                  placeholder="Nombre del responsable"
-                />
+                <input v-model="form.responsable" type="text" class="field" placeholder="Nombre del responsable" />
               </div>
 
               <div>
@@ -190,22 +176,12 @@
 
               <div>
                 <label class="label">DUI del responsable</label>
-                <input
-                  v-model="form.duiResponsable"
-                  type="text"
-                  class="field"
-                  placeholder="00000000-0"
-                />
+                <input v-model="form.duiResponsable" type="text" class="field" placeholder="00000000-0" />
               </div>
 
               <div>
                 <label class="label">Teléfono principal</label>
-                <input
-                  v-model="form.telefonoResponsable"
-                  type="text"
-                  class="field"
-                  placeholder="0000-0000"
-                />
+                <input v-model="form.telefonoResponsable" type="text" class="field" placeholder="0000-0000" />
               </div>
             </div>
           </section>
@@ -223,31 +199,17 @@
             <div class="border-t border-slate-200 pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label class="label">Alergias o enfermedades</label>
-                <input
-                  v-model="form.salud"
-                  type="text"
-                  class="field"
-                  placeholder="Ninguna"
-                />
+                <input v-model="form.salud" type="text" class="field" placeholder="Ninguna" />
               </div>
 
               <div>
                 <label class="label">Medicamento permanente</label>
-                <input
-                  v-model="form.medicamento"
-                  type="text"
-                  class="field"
-                  placeholder="Ninguno"
-                />
+                <input v-model="form.medicamento" type="text" class="field" placeholder="Ninguno" />
               </div>
 
               <div class="md:col-span-2">
                 <label class="label">Observaciones médicas</label>
-                <textarea
-                  v-model="form.observacionesMedicas"
-                  class="field min-h-[120px]"
-                  placeholder="Observaciones importantes para casos de emergencia"
-                ></textarea>
+                <textarea v-model="form.observacionesMedicas" class="field min-h-[120px]" placeholder="Observaciones importantes para casos de emergencia"></textarea>
               </div>
             </div>
           </section>
@@ -338,28 +300,18 @@
 
               <div>
                 <label class="label">Fecha de matrícula</label>
-                <input
-                  v-model="form.fechaMatricula"
-                  type="date"
-                  class="field"
-                />
+                <input v-model="form.fechaMatricula" type="date" class="field" />
               </div>
             </div>
           </section>
         </div>
 
         <div class="bg-slate-100 border-t border-slate-200 px-10 py-10">
-          <div
-            v-if="error"
-            class="mb-5 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-red-700 font-semibold"
-          >
+          <div v-if="error" class="mb-5 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-red-700 font-semibold">
             {{ error }}
           </div>
 
-          <div
-            v-if="success"
-            class="mb-5 rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-700 font-semibold"
-          >
+          <div v-if="success" class="mb-5 rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-700 font-semibold">
             {{ success }}
           </div>
 
@@ -394,6 +346,8 @@ function crearEstadoInicial() {
     seccion: "A",
     turno: "Matutino",
     materia: "General",
+    docenteId: "",
+    docenteAsignado: "",
 
     nombres: "",
     apellidos: "",
@@ -443,6 +397,8 @@ function validarFormulario() {
   if (!form.direccion.trim()) return "Debes ingresar la dirección.";
   if (!form.responsable.trim()) return "Debes ingresar el nombre del responsable.";
   if (!form.telefonoResponsable.trim()) return "Debes ingresar el teléfono del responsable.";
+  if (!form.docenteId.trim()) return "Debes ingresar el ID del docente asignado.";
+  if (!form.docenteAsignado.trim()) return "Debes ingresar el nombre del docente asignado.";
   return "";
 }
 
@@ -472,6 +428,8 @@ async function guardarMatricula() {
       seccion: form.seccion,
       materia: form.materia,
       turno: form.turno,
+      docenteId: form.docenteId,
+      docenteAsignado: form.docenteAsignado,
       fechaNacimiento: form.fechaNacimiento,
       sexo: form.sexo,
       telefonoEstudiante: form.telefonoEstudiante,

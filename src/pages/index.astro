@@ -4,144 +4,218 @@ import AulaVirtual from "../components/AulaVirtual.vue";
 import BoletaNotas from "../components/BoletaNotas.vue";
 import RegistroAlumno from "../components/RegistroAlumno.vue";
 import ListaMatriculados from "../components/ListaMatriculados.vue";
+import ListaAlumnosDocente from "../components/ListaAlumnosDocente.vue";
 ---
 
-<Layout title="Dashboard | CPEG Virtual">
-  <main class="min-h-screen bg-[#f1f5f9] pb-20 font-sans italic">
-    <div class="max-w-7xl mx-auto px-4 pt-8 mb-8">
-      <div
-        id="perfil-card"
-        class="relative bg-[#002855] rounded-[3rem] shadow-2xl border-b-[10px] border-[#fbbf24] p-10 overflow-hidden"
-      >
-        <div class="absolute top-8 right-10 z-30">
-          <button
-            id="logout-final"
-            type="button"
-            class="relative z-30 bg-[#e11d48] hover:bg-red-700 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg transition-all inline-flex items-center gap-2 italic cursor-pointer"
-          >
-            SALIR <span class="text-xs pointer-events-none">🚪</span>
-          </button>
+<Layout title="Dashboard | EVA">
+  <main class="min-h-screen bg-[#f8fafc] font-sans">
+    <div class="border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-900 tracking-tight">
+            Plataforma EVA
+          </h1>
+          <p class="text-sm text-slate-500">
+            Gestión académica moderna
+          </p>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-12 items-center">
-          <div class="relative">
-            <div class="w-48 h-48 bg-[#fbbf24] rounded-[2.5rem] p-1 shadow-2xl flex items-center justify-center border-4 border-white/20">
-              <span id="user-initials" class="text-6xl font-black text-[#002855]">CPEG</span>
+        <button
+          id="logout-final"
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition shadow-sm"
+        >
+          Salir
+          <span class="text-xs pointer-events-none">↗</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-10 space-y-10">
+      <section class="relative overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-[#0B1F3A] via-[#163A63] to-[#0f172a] shadow-[0_10px_40px_rgba(15,23,42,0.16)]">
+        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.6),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(59,130,246,0.35),_transparent_30%)]"></div>
+
+        <div class="relative px-6 md:px-8 py-8 md:py-10">
+          <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center">
+            <div class="flex items-center gap-5">
+              <div class="w-20 h-20 rounded-2xl bg-white/10 border border-white/15 backdrop-blur flex items-center justify-center shadow-xl">
+                <span id="user-initials" class="text-white text-2xl font-bold tracking-wide">EV</span>
+              </div>
+
+              <div>
+                <p id="txt-perfil-tipo" class="text-sky-300 text-xs md:text-sm font-medium tracking-[0.22em] uppercase">
+                  Perfil EVA
+                </p>
+                <h2 id="welcome-msg" class="text-white text-2xl md:text-4xl font-semibold tracking-tight mt-2">
+                  Hola, Usuario
+                </h2>
+                <p class="text-slate-300 text-sm mt-2">
+                  Entorno institucional con acceso segmentado por rol.
+                </p>
+              </div>
             </div>
 
-            <div
-              id="med-alert"
-              class="hidden absolute -top-4 -right-4 bg-red-600 text-white w-14 h-14 rounded-full items-center justify-center border-4 border-white shadow-2xl animate-pulse"
+            <div class="lg:ml-auto w-full lg:w-auto">
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div class="glass-card">
+                  <p id="label-id" class="hero-label">ID</p>
+                  <p id="user-id" class="hero-value">---</p>
+                </div>
+
+                <div class="glass-card">
+                  <p class="hero-label">Dirección</p>
+                  <p id="user-dir" class="hero-value">---</p>
+                </div>
+
+                <div class="glass-card">
+                  <p id="label-bloque-6" class="hero-label">Nivel</p>
+                  <p id="user-grado" class="hero-value">---</p>
+                </div>
+
+                <div class="glass-card">
+                  <p id="label-bloque-4" class="hero-label">Área</p>
+                  <p id="user-materia" class="hero-value">---</p>
+                </div>
+
+                <div class="glass-card">
+                  <p id="label-bloque-5" class="hero-label">Responsable</p>
+                  <p id="user-encargado" class="hero-value">---</p>
+                </div>
+
+                <div class="glass-card">
+                  <p class="hero-label">Rol</p>
+                  <p id="badge-rol" class="hero-value text-sky-300">---</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="flex flex-wrap gap-3">
+        <button id="nav-1" class="tab-active">
+          Panel principal
+        </button>
+        <button id="nav-2" class="tab">
+          Aula virtual
+        </button>
+      </section>
+
+      <section id="section-1" class="block">
+        <div id="ui-alumno" class="hidden">
+          <BoletaNotas client:only="vue" />
+        </div>
+
+        <div id="ui-maestro" class="hidden">
+          <ListaAlumnosDocente client:only="vue" />
+        </div>
+
+        <div id="ui-admin" class="hidden space-y-8">
+          <div class="bg-white border border-slate-200 rounded-[24px] shadow-sm p-6 md:p-7 mt-2">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 class="text-lg md:text-xl font-semibold text-slate-900 tracking-tight">
+                  Centro de administración
+                </h3>
+                <p class="text-sm text-slate-500 mt-1">
+                  Crea matrículas, asigna docentes y supervisa el historial académico.
+                </p>
+              </div>
+
+              <button
+                id="open-admin-matricula"
+                type="button"
+                class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-[#0B1F3A] hover:bg-[#163A63] text-white text-sm font-semibold transition shadow-sm"
+              >
+                Nueva matrícula
+              </button>
+            </div>
+          </div>
+
+          <ListaMatriculados client:only="vue" />
+        </div>
+      </section>
+
+      <section id="section-2" class="hidden">
+        <AulaVirtual client:only="vue" />
+      </section>
+    </div>
+
+    <div id="admin-matricula-overlay" class="hidden fixed inset-0 z-[70] bg-slate-950/55 backdrop-blur-[2px] p-4 md:p-8">
+      <div class="h-full w-full flex items-center justify-center">
+        <div class="w-full max-w-7xl max-h-[95vh] overflow-auto rounded-[28px]">
+          <div class="mb-4 flex justify-end">
+            <button
+              id="close-admin-matricula"
+              type="button"
+              class="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white text-slate-700 hover:bg-slate-100 shadow"
             >
-              <span class="text-3xl">⚠️</span>
-            </div>
+              ✕
+            </button>
           </div>
 
-          <div class="flex-1 text-white">
-            <div class="mb-8">
-              <h1
-                id="txt-perfil-tipo"
-                class="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 opacity-90 mb-2 italic"
-              >
-                FICHA DIGITAL CPEG
-              </h1>
-              <h2 id="welcome-msg" class="text-5xl font-black tracking-tighter italic">
-                ¡Hola, Usuario!
-              </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p id="label-id" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
-                  ID Estudiantil
-                </p>
-                <p id="user-id" class="font-bold text-sm text-white italic tracking-widest">---</p>
-              </div>
-
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p id="label-direccion" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
-                  Dirección
-                </p>
-                <p id="user-dir" class="font-bold text-sm text-white italic truncate">---</p>
-              </div>
-
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">Año lectivo</p>
-                <p class="font-bold text-sm text-white italic">2026</p>
-              </div>
-
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p id="label-bloque-4" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
-                  Especialidad / Materia
-                </p>
-                <p id="user-materia" class="font-bold text-sm text-white italic">General</p>
-              </div>
-
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p id="label-bloque-5" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
-                  Responsable
-                </p>
-                <p id="user-encargado" class="font-bold text-sm text-white italic">---</p>
-              </div>
-
-              <div class="bg-[#1e3a5f] p-5 rounded-2xl border border-white/10 shadow-inner">
-                <p id="label-bloque-6" class="text-[9px] font-black text-yellow-400 uppercase italic mb-1">
-                  Nivel / Grado
-                </p>
-                <p id="user-grado" class="font-bold text-sm text-white italic">---</p>
-              </div>
-            </div>
-
-            <div id="badges-container" class="mt-8">
-              <span
-                id="badge-rol"
-                class="bg-[#2d4a77] text-white text-[10px] font-black px-6 py-2 rounded-full border border-white/20 uppercase italic tracking-widest shadow-lg"
-              >
-                CARGANDO...
-              </span>
-            </div>
-          </div>
+          <RegistroAlumno client:only="vue" />
         </div>
       </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 mb-10">
-      <div class="flex gap-4 p-2 bg-white rounded-[2rem] shadow-xl border border-slate-200">
-        <button
-          id="nav-1"
-          class="flex-1 py-5 rounded-[1.5rem] font-black text-[11px] bg-[#002855] text-white shadow-xl uppercase tracking-[0.2em] transition-all italic text-center"
-        >
-          REGISTROS
-        </button>
-
-        <button
-          id="nav-2"
-          class="flex-1 py-5 rounded-[1.5rem] font-black text-[11px] text-slate-400 uppercase tracking-[0.2em] transition-all italic text-center"
-        >
-          AULA VIRTUAL
-        </button>
-      </div>
-    </div>
-
-    <div id="section-1" class="block px-4 max-w-7xl mx-auto animate-fade-in">
-      <div id="ui-alumno" class="hidden">
-        <BoletaNotas client:only="vue" />
-      </div>
-
-      <div id="ui-maestro" class="hidden">
-        <RegistroAlumno client:only="vue" />
-      </div>
-
-      <div id="ui-admin" class="hidden">
-        <ListaMatriculados client:only="vue" />
-      </div>
-    </div>
-
-    <div id="section-2" class="hidden px-4 max-w-7xl mx-auto animate-fade-in">
-      <AulaVirtual client:only="vue" />
     </div>
   </main>
 </Layout>
+
+<style>
+  .tab,
+  .tab-active {
+    padding: 0.8rem 1.15rem;
+    border-radius: 0.95rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+  }
+
+  .tab {
+    background: white;
+    color: #475569;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .tab:hover {
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  .tab-active {
+    background: #0b1f3a;
+    color: white;
+    box-shadow: 0 10px 20px rgba(11, 31, 58, 0.18);
+  }
+
+  .glass-card {
+    min-width: 180px;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+  }
+
+  .hero-label {
+    color: rgba(226, 232, 240, 0.75);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .hero-value {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+</style>
 
 <script is:inline>
   function byId(id) {
@@ -169,7 +243,7 @@ import ListaMatriculados from "../components/ListaMatriculados.vue";
   function getInitials(nombre, rol) {
     if (rol === "DOCENTE") return "DOC";
     if (rol === "ADMIN") return "ADM";
-    if (!nombre || nombre === "Usuario") return "CPEG";
+    if (!nombre || nombre === "Usuario") return "EV";
 
     const partes = nombre.trim().split(/\s+/).filter(Boolean);
     if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
@@ -177,18 +251,14 @@ import ListaMatriculados from "../components/ListaMatriculados.vue";
   }
 
   function setActiveTab(activeButton, inactiveButton) {
-    activeButton.className =
-      "flex-1 py-5 rounded-[1.5rem] font-black text-[11px] bg-[#002855] text-white shadow-xl uppercase tracking-[0.2em] transition-all italic text-center";
-
-    inactiveButton.className =
-      "flex-1 py-5 rounded-[1.5rem] font-black text-[11px] text-slate-400 uppercase tracking-[0.2em] transition-all italic text-center";
+    activeButton.className = "tab-active";
+    inactiveButton.className = "tab";
   }
 
   function setup() {
     const rol = getSafeStorage("user_rol", "ALUMNO").toUpperCase();
     const nombre = getSafeStorage("user_name", "Usuario");
     const rawId = getSafeStorage("user_id", "---");
-    const alergias = getSafeStorage("user_alergias", "Ninguna");
     const grado = getSafeStorage("user_grado", "---");
     const seccion = getSafeStorage("user_seccion", "");
     const direccion = getSafeStorage("user_direccion", "San Miguel, ES");
@@ -197,7 +267,7 @@ import ListaMatriculados from "../components/ListaMatriculados.vue";
 
     const cleanId = cleanUserId(rawId);
 
-    setText("welcome-msg", `¡Hola, ${nombre}!`);
+    setText("welcome-msg", `Hola, ${nombre}`);
     setText("user-id", cleanId);
     setText("user-dir", direccion);
     setText("user-encargado", encargado);
@@ -207,61 +277,57 @@ import ListaMatriculados from "../components/ListaMatriculados.vue";
     const uiAlumno = byId("ui-alumno");
     const uiMaestro = byId("ui-maestro");
     const uiAdmin = byId("ui-admin");
-    const medAlert = byId("med-alert");
     const nav1 = byId("nav-1");
     const nav2 = byId("nav-2");
     const s1 = byId("section-1");
     const s2 = byId("section-2");
     const logout = byId("logout-final");
 
+    const openAdminMatricula = byId("open-admin-matricula");
+    const closeAdminMatricula = byId("close-admin-matricula");
+    const adminMatriculaOverlay = byId("admin-matricula-overlay");
+
     if (uiAlumno) uiAlumno.classList.add("hidden");
     if (uiMaestro) uiMaestro.classList.add("hidden");
     if (uiAdmin) uiAdmin.classList.add("hidden");
 
     if (rol === "DOCENTE") {
-      setText("txt-perfil-tipo", "FICHA PROFESIONAL DOCENTE CPEG");
-      setText("label-id", "ID Docente");
-      setText("label-bloque-4", "Cargo");
-      setText("label-bloque-5", "Área académica");
-      setText("label-bloque-6", "Nivel / Grado");
+      setText("txt-perfil-tipo", "Vista docente");
+      setText("label-id", "ID docente");
+      setText("label-bloque-4", "Área académica");
+      setText("label-bloque-5", "Unidad");
+      setText("label-bloque-6", "Asignación");
 
-      setText("user-materia", materia === "General" ? "Docente" : materia);
-      setText("user-encargado", "Planta docente");
-      setText("user-grado", "Planta Docente");
-      setText("badge-rol", "DOCENTE ACTIVO");
+      setText("user-materia", materia === "General" ? "Docencia" : materia);
+      setText("user-encargado", "Consulta académica");
+      setText("user-grado", "Alumnos asignados");
+      setText("badge-rol", "DOCENTE");
 
-      if (nav1) nav1.innerText = "GESTIÓN DE MATRÍCULA";
       if (uiMaestro) uiMaestro.classList.remove("hidden");
     } else if (rol === "ADMIN") {
-      setText("txt-perfil-tipo", "PANEL ADMINISTRATIVO CPEG");
-      setText("label-id", "ID Administrador");
+      setText("txt-perfil-tipo", "Panel administrativo");
+      setText("label-id", "ID administrador");
       setText("label-bloque-4", "Cargo");
       setText("label-bloque-5", "Función");
       setText("label-bloque-6", "Acceso");
 
       setText("user-materia", "Administrador");
-      setText("user-encargado", "Control de matrículas");
-      setText("user-grado", "Acceso total");
-      setText("badge-rol", "ADMINISTRADOR ACTIVO");
+      setText("user-encargado", "Gestión institucional");
+      setText("user-grado", "Control total");
+      setText("badge-rol", "ADMIN");
 
-      if (nav1) nav1.innerText = "MATRÍCULAS";
       if (uiAdmin) uiAdmin.classList.remove("hidden");
     } else {
-      setText("txt-perfil-tipo", "EXPEDIENTE ACADÉMICO DIGITAL");
-      setText("label-id", "CÓDIGO ESTUDIANTIL");
-      setText("label-bloque-4", "Especialidad / Materia");
+      setText("txt-perfil-tipo", "Expediente académico");
+      setText("label-id", "Código estudiantil");
+      setText("label-bloque-4", "Modalidad");
       setText("label-bloque-5", "Responsable");
-      setText("label-bloque-6", "Nivel / Grado");
+      setText("label-bloque-6", "Nivel / sección");
 
-      setText("user-grado", seccion ? `${grado} - Secc. "${seccion}"` : grado);
-      setText("badge-rol", "ESTUDIANTE ACTIVO");
+      setText("user-grado", seccion ? `${grado} · Sección ${seccion}` : grado);
+      setText("badge-rol", "ALUMNO");
 
       if (uiAlumno) uiAlumno.classList.remove("hidden");
-
-      if (medAlert && alergias.toUpperCase() !== "NINGUNA" && alergias !== "---") {
-        medAlert.classList.remove("hidden");
-        medAlert.classList.add("flex");
-      }
     }
 
     if (nav1 && nav2 && s1 && s2) {
@@ -284,6 +350,29 @@ import ListaMatriculados from "../components/ListaMatriculados.vue";
       logout.addEventListener("click", () => {
         localStorage.clear();
         window.location.href = "/login";
+      });
+    }
+
+    if (openAdminMatricula && adminMatriculaOverlay) {
+      openAdminMatricula.addEventListener("click", () => {
+        adminMatriculaOverlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      });
+    }
+
+    if (closeAdminMatricula && adminMatriculaOverlay) {
+      closeAdminMatricula.addEventListener("click", () => {
+        adminMatriculaOverlay.classList.add("hidden");
+        document.body.style.overflow = "";
+      });
+    }
+
+    if (adminMatriculaOverlay) {
+      adminMatriculaOverlay.addEventListener("click", (e) => {
+        if (e.target === adminMatriculaOverlay) {
+          adminMatriculaOverlay.classList.add("hidden");
+          document.body.style.overflow = "";
+        }
       });
     }
   }

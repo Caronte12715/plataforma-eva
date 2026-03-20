@@ -76,6 +76,9 @@ export async function POST({ request }) {
       materia: datos.materia || "General",
       turno: datos.turno || "Matutino",
 
+      docenteId: String(datos.docenteId || "").trim().toUpperCase(),
+      docenteAsignado: String(datos.docenteAsignado || "").trim(),
+
       fechaNacimiento: datos.fechaNacimiento || "",
       sexo: datos.sexo || "",
       telefonoEstudiante: datos.telefonoEstudiante || "",

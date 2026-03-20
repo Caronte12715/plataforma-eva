@@ -1,122 +1,157 @@
 <template>
-  <div class="w-full">
-    <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-200">
-      <div class="bg-[#002855] px-10 py-8 border-b-[8px] border-[#fbbf24]">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+  <div class="space-y-6">
+    <!-- RESUMEN -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="card-stat">
+        <p class="stat-label">Total matrículas</p>
+        <p class="stat-value">{{ alumnos.length }}</p>
+      </div>
+
+      <div class="card-stat">
+        <p class="stat-label">Validadas</p>
+        <p class="stat-value">{{ totalValidadas }}</p>
+      </div>
+
+      <div class="card-stat">
+        <p class="stat-label">Pendientes</p>
+        <p class="stat-value">{{ totalPendientes }}</p>
+      </div>
+    </section>
+
+    <!-- PANEL PRINCIPAL -->
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">
+            Matrículas registradas
+          </h2>
+          <p class="text-sm text-slate-500">
+            Revisión y administración de estudiantes matriculados
+          </p>
+        </div>
+
+        <button
+          @click="cargarMatriculas"
+          :disabled="loading"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#0B1F3A] hover:bg-[#163A63] text-white text-sm font-semibold transition disabled:opacity-60"
+        >
+          {{ loading ? "Actualizando..." : "Actualizar" }}
+        </button>
+      </div>
+
+      <div class="p-6 border-b border-slate-200 bg-slate-50/70">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2">
+            <label class="filter-label">Buscar</label>
+            <input
+              v-model="busqueda"
+              type="text"
+              class="field"
+              placeholder="Buscar por código, nombre, NIE, grado o responsable"
+            />
+          </div>
+
           <div>
-            <h2 class="text-white text-4xl font-black italic tracking-tight uppercase">
-              Matrículas registradas
-            </h2>
-            <p class="text-yellow-400 text-sm font-black italic uppercase mt-2 tracking-wide">
-              Panel administrativo de estudiantes matriculados
-            </p>
-          </div>
-
-          <div class="bg-white/10 border border-white/20 rounded-[2rem] px-8 py-5 min-w-[220px]">
-            <p class="text-white/70 text-[10px] uppercase font-black italic">Total registrados</p>
-            <p class="text-yellow-400 text-3xl font-black italic mt-1">
-              {{ alumnos.length }}
-            </p>
+            <label class="filter-label">Estado</label>
+            <select v-model="filtroEstado" class="field">
+              <option value="">Todos los estados</option>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="VALIDADA">Validada</option>
+              <option value="OBSERVADA">Observada</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <div class="p-8 bg-[#f8fafc]">
-        <div class="flex flex-col lg:flex-row gap-4 mb-6">
-          <input
-            v-model="busqueda"
-            type="text"
-            class="field flex-1"
-            placeholder="Buscar por nombre, NIE, código o responsable"
-          />
-
-          <select v-model="filtroEstado" class="field lg:w-[220px]">
-            <option value="">Todos los estados</option>
-            <option value="PENDIENTE">Pendiente</option>
-            <option value="VALIDADA">Validada</option>
-            <option value="OBSERVADA">Observada</option>
-          </select>
-
-          <button
-            @click="cargarMatriculas"
-            :disabled="loading"
-            class="bg-[#002855] hover:bg-[#001d3d] disabled:opacity-60 text-white px-6 py-4 rounded-[1.25rem] font-black uppercase tracking-[0.15em]"
-          >
-            {{ loading ? "Cargando..." : "Actualizar" }}
-          </button>
-        </div>
-
-        <div v-if="error" class="mb-5 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-red-700 font-semibold">
-          {{ error }}
-        </div>
-
-        <div v-if="success" class="mb-5 rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-700 font-semibold">
-          {{ success }}
-        </div>
-
-        <div v-if="loading" class="rounded-[2rem] border border-slate-200 bg-white px-6 py-8 text-slate-500 font-bold">
-          Cargando matrículas...
-        </div>
-
-        <div v-else-if="filtrados.length === 0" class="rounded-[2rem] border border-slate-200 bg-white px-6 py-8 text-slate-500 font-bold">
-          No hay matrículas registradas todavía.
-        </div>
-
-        <div v-else class="overflow-x-auto rounded-[2rem] border border-slate-200 bg-white">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-100">
-              <tr>
-                <th class="th">Código</th>
-                <th class="th">Nombre</th>
-                <th class="th">NIE</th>
-                <th class="th">Grado</th>
-                <th class="th">Sección</th>
-                <th class="th">Responsable</th>
-                <th class="th">Estado</th>
-                <th class="th">Fecha</th>
-                <th class="th">Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr
-                v-for="alumno in filtrados"
-                :key="alumno.PK"
-                class="border-t border-slate-100 hover:bg-slate-50"
-              >
-                <td class="td font-black text-[#002855]">{{ alumno.PK }}</td>
-                <td class="td">{{ alumno.nombre || "-" }}</td>
-                <td class="td">{{ alumno.nie || "-" }}</td>
-                <td class="td">{{ alumno.grado || "-" }}</td>
-                <td class="td">{{ alumno.seccion || "-" }}</td>
-                <td class="td">{{ mostrarResponsable(alumno.responsable) }}</td>
-                <td class="td">
-                  <span :class="badgeClass(alumno.estadoMatricula)">
-                    {{ alumno.estadoMatricula || "PENDIENTE" }}
-                  </span>
-                </td>
-                <td class="td">{{ formatFecha(alumno.fechaMatricula || alumno.fechaRegistro) }}</td>
-                <td class="td">
-                  <div class="flex flex-wrap gap-2">
-                    <button class="mini-btn mini-btn-view" @click="verDetalle(alumno)">
-                      Ver
-                    </button>
-                    <button class="mini-btn mini-btn-edit" @click="abrirEdicion(alumno)">
-                      Editar
-                    </button>
-                    <button class="mini-btn mini-btn-delete" @click="eliminarMatricula(alumno)">
-                      Eliminar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div v-if="error" class="mx-6 mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        {{ error }}
       </div>
-    </div>
 
-    <!-- Modal detalle -->
+      <div v-if="success" class="mx-6 mt-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+        {{ success }}
+      </div>
+
+      <div v-if="loading" class="p-8 text-slate-500 text-sm font-medium">
+        Cargando matrículas...
+      </div>
+
+      <div v-else-if="filtrados.length === 0" class="p-8 text-slate-500 text-sm font-medium">
+        No hay matrículas registradas todavía.
+      </div>
+
+      <div v-else class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="th">Código</th>
+              <th class="th">Estudiante</th>
+              <th class="th">NIE</th>
+              <th class="th">Grado</th>
+              <th class="th">Responsable</th>
+              <th class="th">Estado</th>
+              <th class="th">Fecha</th>
+              <th class="th text-right pr-6">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              v-for="alumno in filtrados"
+              :key="alumno.PK"
+              class="border-t border-slate-100 hover:bg-slate-50/80 transition"
+            >
+              <td class="td">
+                <div class="font-semibold text-[#0B1F3A]">
+                  {{ alumno.PK }}
+                </div>
+                <div class="text-xs text-slate-400">
+                  {{ alumno.seccion ? `Sección ${alumno.seccion}` : "Sin sección" }}
+                </div>
+              </td>
+
+              <td class="td">
+                <div class="font-semibold text-slate-800">
+                  {{ alumno.nombre || "-" }}
+                </div>
+                <div class="text-xs text-slate-400">
+                  {{ alumno.turno || "Turno no definido" }}
+                </div>
+              </td>
+
+              <td class="td">{{ alumno.nie || "-" }}</td>
+              <td class="td">{{ alumno.grado || "-" }}</td>
+              <td class="td">{{ mostrarResponsable(alumno.responsable) }}</td>
+
+              <td class="td">
+                <span :class="badgeClass(alumno.estadoMatricula)">
+                  {{ alumno.estadoMatricula || "PENDIENTE" }}
+                </span>
+              </td>
+
+              <td class="td">
+                {{ formatFecha(alumno.fechaMatricula || alumno.fechaRegistro) }}
+              </td>
+
+              <td class="td pr-6">
+                <div class="flex justify-end flex-wrap gap-2">
+                  <button class="action-btn btn-view" @click="verDetalle(alumno)">
+                    Ver
+                  </button>
+                  <button class="action-btn btn-edit" @click="abrirEdicion(alumno)">
+                    Editar
+                  </button>
+                  <button class="action-btn btn-delete" @click="eliminarMatricula(alumno)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MODAL DETALLE -->
     <div v-if="detalleAbierto && alumnoSeleccionado" class="overlay">
       <div class="modal-card">
         <div class="modal-header">
@@ -127,27 +162,71 @@
           <button class="close-btn" @click="cerrarDetalle">✕</button>
         </div>
 
-        <div class="modal-body grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div class="info-box"><span class="info-label">Nombre</span><span class="info-value">{{ alumnoSeleccionado.nombre || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">NIE</span><span class="info-value">{{ alumnoSeleccionado.nie || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Grado</span><span class="info-value">{{ alumnoSeleccionado.grado || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Sección</span><span class="info-value">{{ alumnoSeleccionado.seccion || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Turno</span><span class="info-value">{{ alumnoSeleccionado.turno || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Modalidad</span><span class="info-value">{{ alumnoSeleccionado.materia || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Fecha nacimiento</span><span class="info-value">{{ alumnoSeleccionado.fechaNacimiento || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Sexo</span><span class="info-value">{{ alumnoSeleccionado.sexo || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Responsable</span><span class="info-value">{{ mostrarResponsable(alumnoSeleccionado.responsable) }}</span></div>
-          <div class="info-box"><span class="info-label">Tel. responsable</span><span class="info-value">{{ alumnoSeleccionado.telefonoResponsable || "-" }}</span></div>
-          <div class="info-box md:col-span-2"><span class="info-label">Dirección</span><span class="info-value">{{ alumnoSeleccionado.direccion || "-" }}</span></div>
-          <div class="info-box md:col-span-2"><span class="info-label">Salud</span><span class="info-value">{{ alumnoSeleccionado.salud || "Ninguna" }}</span></div>
-          <div class="info-box md:col-span-2"><span class="info-label">Observaciones médicas</span><span class="info-value">{{ alumnoSeleccionado.observacionesMedicas || "-" }}</span></div>
-          <div class="info-box"><span class="info-label">Estado</span><span class="info-value">{{ alumnoSeleccionado.estadoMatricula || "PENDIENTE" }}</span></div>
-          <div class="info-box"><span class="info-label">Fecha matrícula</span><span class="info-value">{{ formatFecha(alumnoSeleccionado.fechaMatricula || alumnoSeleccionado.fechaRegistro) }}</span></div>
+        <div class="modal-body grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="info-box">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ alumnoSeleccionado.nombre || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">NIE</span>
+            <span class="info-value">{{ alumnoSeleccionado.nie || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Grado</span>
+            <span class="info-value">{{ alumnoSeleccionado.grado || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Sección</span>
+            <span class="info-value">{{ alumnoSeleccionado.seccion || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Turno</span>
+            <span class="info-value">{{ alumnoSeleccionado.turno || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Modalidad</span>
+            <span class="info-value">{{ alumnoSeleccionado.materia || "-" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Responsable</span>
+            <span class="info-value">{{ mostrarResponsable(alumnoSeleccionado.responsable) }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Tel. responsable</span>
+            <span class="info-value">{{ alumnoSeleccionado.telefonoResponsable || "-" }}</span>
+          </div>
+
+          <div class="info-box md:col-span-2">
+            <span class="info-label">Dirección</span>
+            <span class="info-value">{{ alumnoSeleccionado.direccion || "-" }}</span>
+          </div>
+
+          <div class="info-box md:col-span-2">
+            <span class="info-label">Salud</span>
+            <span class="info-value">{{ alumnoSeleccionado.salud || "Ninguna" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ alumnoSeleccionado.estadoMatricula || "PENDIENTE" }}</span>
+          </div>
+
+          <div class="info-box">
+            <span class="info-label">Fecha</span>
+            <span class="info-value">{{ formatFecha(alumnoSeleccionado.fechaMatricula || alumnoSeleccionado.fechaRegistro) }}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal edición -->
+    <!-- MODAL EDICIÓN -->
     <div v-if="edicionAbierta" class="overlay">
       <div class="modal-card modal-wide">
         <div class="modal-header">
@@ -158,29 +237,29 @@
           <button class="close-btn" @click="cerrarEdicion">✕</button>
         </div>
 
-        <div class="modal-body grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="modal-body grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="label">Nombres</label>
+            <label class="filter-label">Nombres</label>
             <input v-model="editForm.nombres" class="field" type="text" />
           </div>
 
           <div>
-            <label class="label">Apellidos</label>
+            <label class="filter-label">Apellidos</label>
             <input v-model="editForm.apellidos" class="field" type="text" />
           </div>
 
           <div>
-            <label class="label">NIE</label>
+            <label class="filter-label">NIE</label>
             <input v-model="editForm.nie" class="field" type="text" />
           </div>
 
           <div>
-            <label class="label">Responsable</label>
+            <label class="filter-label">Responsable</label>
             <input v-model="editForm.responsable" class="field" type="text" />
           </div>
 
           <div>
-            <label class="label">Grado</label>
+            <label class="filter-label">Grado</label>
             <select v-model="editForm.grado" class="field">
               <option>1er Año</option>
               <option>2do Año</option>
@@ -189,7 +268,7 @@
           </div>
 
           <div>
-            <label class="label">Sección</label>
+            <label class="filter-label">Sección</label>
             <select v-model="editForm.seccion" class="field">
               <option>A</option>
               <option>B</option>
@@ -199,7 +278,7 @@
           </div>
 
           <div>
-            <label class="label">Turno</label>
+            <label class="filter-label">Turno</label>
             <select v-model="editForm.turno" class="field">
               <option>Matutino</option>
               <option>Vespertino</option>
@@ -208,7 +287,7 @@
           </div>
 
           <div>
-            <label class="label">Estado</label>
+            <label class="filter-label">Estado</label>
             <select v-model="editForm.estadoMatricula" class="field">
               <option>PENDIENTE</option>
               <option>VALIDADA</option>
@@ -217,12 +296,12 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="label">Dirección</label>
+            <label class="filter-label">Dirección</label>
             <input v-model="editForm.direccion" class="field" type="text" />
           </div>
 
           <div class="md:col-span-2">
-            <label class="label">Salud / alergias</label>
+            <label class="filter-label">Salud / alergias</label>
             <input v-model="editForm.salud" class="field" type="text" />
           </div>
         </div>
@@ -293,11 +372,17 @@ const filtrados = computed(() => {
   });
 });
 
+const totalValidadas = computed(() =>
+  alumnos.value.filter((a) => (a.estadoMatricula || "").toUpperCase() === "VALIDADA").length
+);
+
+const totalPendientes = computed(() =>
+  alumnos.value.filter((a) => (a.estadoMatricula || "PENDIENTE").toUpperCase() === "PENDIENTE").length
+);
+
 function mostrarResponsable(responsable) {
   if (!responsable) return "-";
-  if (typeof responsable === "object") {
-    return responsable.nombre || responsable.name || "-";
-  }
+  if (typeof responsable === "object") return responsable.nombre || responsable.name || "-";
   return String(responsable);
 }
 
@@ -308,7 +393,6 @@ function formatFecha(valor) {
 
 function badgeClass(estado) {
   const value = (estado || "").toUpperCase();
-
   if (value === "VALIDADA") return "badge badge-ok";
   if (value === "OBSERVADA") return "badge badge-warn";
   return "badge badge-pending";
@@ -351,6 +435,19 @@ function cerrarDetalle() {
   alumnoSeleccionado.value = null;
 }
 
+function obtenerNombres(nombreCompleto = "") {
+  const partes = String(nombreCompleto).trim().split(/\s+/).filter(Boolean);
+  if (partes.length <= 2) return partes[0] || "";
+  return partes.slice(0, 2).join(" ");
+}
+
+function obtenerApellidos(nombreCompleto = "") {
+  const partes = String(nombreCompleto).trim().split(/\s+/).filter(Boolean);
+  if (partes.length <= 1) return "";
+  if (partes.length === 2) return partes[1];
+  return partes.slice(2).join(" ");
+}
+
 function abrirEdicion(alumno) {
   editForm.PK = alumno.PK || "";
   editForm.nombres = alumno.nombres || obtenerNombres(alumno.nombre);
@@ -369,19 +466,6 @@ function abrirEdicion(alumno) {
 
 function cerrarEdicion() {
   edicionAbierta.value = false;
-}
-
-function obtenerNombres(nombreCompleto = "") {
-  const partes = String(nombreCompleto).trim().split(/\s+/).filter(Boolean);
-  if (partes.length <= 2) return partes[0] || "";
-  return partes.slice(0, 2).join(" ");
-}
-
-function obtenerApellidos(nombreCompleto = "") {
-  const partes = String(nombreCompleto).trim().split(/\s+/).filter(Boolean);
-  if (partes.length <= 1) return "";
-  if (partes.length === 2) return partes[1];
-  return partes.slice(2).join(" ");
 }
 
 async function guardarEdicion() {
@@ -462,55 +546,75 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.card-stat {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
 .field {
   width: 100%;
   border: 1px solid #e2e8f0;
   background: white;
-  border-radius: 1.25rem;
-  padding: 1rem 1.25rem;
-  font-weight: 700;
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  font-weight: 500;
   color: #0f172a;
   outline: none;
+  transition: all 0.2s ease;
 }
 
 .field:focus {
-  border-color: #002855;
-  box-shadow: 0 0 0 3px rgba(0, 40, 85, 0.08);
+  border-color: #163A63;
+  box-shadow: 0 0 0 3px rgba(22, 58, 99, 0.08);
 }
 
-.label {
+.filter-label {
   display: block;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  font-style: italic;
-  color: #94a3b8;
-  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.45rem;
 }
 
 .th {
   text-align: left;
-  padding: 1rem;
-  font-size: 11px;
+  padding: 1rem 1.25rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: #64748b;
-  font-weight: 900;
-}
-
-.td {
-  padding: 1rem;
-  color: #0f172a;
   font-weight: 700;
 }
 
+.td {
+  padding: 1rem 1.25rem;
+  color: #0f172a;
+  font-size: 0.92rem;
+  vertical-align: middle;
+}
+
 .badge {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.38rem 0.7rem;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .badge-ok {
@@ -528,26 +632,27 @@ onMounted(() => {
   color: #1d4ed8;
 }
 
-.mini-btn {
+.action-btn {
   border: none;
   border-radius: 999px;
-  padding: 0.5rem 0.8rem;
-  font-size: 11px;
-  font-weight: 900;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.mini-btn-view {
+.btn-view {
   background: #e0f2fe;
   color: #075985;
 }
 
-.mini-btn-edit {
+.btn-edit {
   background: #ede9fe;
   color: #5b21b6;
 }
 
-.mini-btn-delete {
+.btn-delete {
   background: #fee2e2;
   color: #b91c1c;
 }
@@ -565,93 +670,91 @@ onMounted(() => {
 
 .modal-card {
   width: 100%;
-  max-width: 850px;
+  max-width: 860px;
   background: white;
-  border-radius: 2rem;
+  border-radius: 1.4rem;
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
   overflow: hidden;
 }
 
 .modal-wide {
-  max-width: 1000px;
+  max-width: 980px;
 }
 
 .modal-header {
-  background: #002855;
+  background: #0B1F3A;
   color: white;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   align-items: start;
   justify-content: space-between;
 }
 
 .modal-title {
-  font-size: 1.5rem;
-  font-weight: 900;
-  font-style: italic;
-  text-transform: uppercase;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .modal-sub {
-  margin-top: 0.25rem;
-  color: #facc15;
-  font-weight: 900;
+  margin-top: 0.2rem;
+  color: #93c5fd;
+  font-size: 0.9rem;
 }
 
 .close-btn {
   border: none;
   background: rgba(255,255,255,0.12);
   color: white;
-  width: 42px;
-  height: 42px;
+  width: 2.3rem;
+  height: 2.3rem;
   border-radius: 999px;
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .modal-body {
-  padding: 2rem;
+  padding: 1.5rem;
   background: #f8fafc;
 }
 
 .modal-footer {
-  padding: 1.5rem 2rem 2rem;
+  padding: 0 1.5rem 1.5rem;
   display: flex;
   justify-content: end;
-  gap: 1rem;
+  gap: 0.8rem;
   background: #f8fafc;
 }
 
 .info-box {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 1.25rem;
-  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .info-label {
-  font-size: 11px;
-  font-weight: 900;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .info-value {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #0f172a;
 }
 
 .secondary-btn,
 .primary-btn {
   border: none;
-  border-radius: 1rem;
-  padding: 0.9rem 1.4rem;
-  font-weight: 900;
+  border-radius: 0.9rem;
+  padding: 0.85rem 1.2rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -661,7 +764,7 @@ onMounted(() => {
 }
 
 .primary-btn {
-  background: #002855;
+  background: #0B1F3A;
   color: white;
 }
 
