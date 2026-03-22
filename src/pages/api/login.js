@@ -1,16 +1,7 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
-const docClient = DynamoDBDocumentClient.from(client);
-const TableName = "PlataformaEva";
+import { GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
 function buildLookupKeys(idRaw) {
   const id = String(idRaw || "").trim().toUpperCase();
@@ -27,7 +18,6 @@ function buildLookupKeys(idRaw) {
     `DOCENTE#${id}`,
     `ESTUDIANTE#${id}`,
     `USER#${id}`,
-    `CPEG#${id}`,
   ];
 }
 
@@ -47,14 +37,14 @@ async function findAlumnoByNIE(nie) {
   return result.Items?.[0] || null;
 }
 
-export async function POST({ request }) {
+export const POST = async ({ request }) => {
   try {
     const body = await request.json();
-    const id = (body?.id || "").toString().trim();
-    const password = (body?.password || "").toString();
+    const id = String(body?.id || "").trim();
+    const password = String(body?.password || "");
 
     if (!id) {
-      return new Response(JSON.stringify({ error: "Debes enviar un ID válido" }), {
+      return new Response(JSON.stringify({ error: "Debes ingresar un ID válido" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -68,7 +58,7 @@ export async function POST({ request }) {
     }
 
     const intentos = buildLookupKeys(id);
-    let Item = null;
+    let item = null;
 
     for (const pk of intentos) {
       const res = await docClient.send(
@@ -79,39 +69,36 @@ export async function POST({ request }) {
       );
 
       if (res.Item) {
-        Item = res.Item;
+        item = res.Item;
         break;
       }
     }
 
-    if (!Item && /^\d{7,8}$/.test(id)) {
-      Item = await findAlumnoByNIE(id);
+    if (!item && /^\d{7,8}$/.test(id)) {
+      item = await findAlumnoByNIE(id);
     }
 
-    if (!Item) {
+    if (!item) {
       return new Response(JSON.stringify({ error: "Carnet no encontrado" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    if (String(Item.password || "") !== password) {
+    if (String(item.password || "") !== password) {
       return new Response(JSON.stringify({ error: "Contraseña incorrecta" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    return new Response(
-      JSON.stringify({
-        ...Item,
-        password: undefined,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const safeItem = { ...item };
+    delete safeItem.password;
+
+    return new Response(JSON.stringify(safeItem), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message || "Error interno del servidor" }),
@@ -121,4 +108,4 @@ export async function POST({ request }) {
       }
     );
   }
-}
+};

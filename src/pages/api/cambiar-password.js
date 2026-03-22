@@ -1,69 +1,61 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
-const docClient = DynamoDBDocumentClient.from(client);
-const TableName = "PlataformaEva";
-
-export async function PUT({ request }) {
+export const PUT = async ({ request }) => {
   try {
     const body = await request.json();
 
-    const PK = String(body?.PK || "").trim().toUpperCase();
+    const PK = String(body?.PK || body?.pk || "").trim().toUpperCase();
     const currentPassword = String(body?.currentPassword || "");
     const newPassword = String(body?.newPassword || "");
 
+    // 🔴 VALIDACIONES
     if (!PK) {
-      return new Response(JSON.stringify({ error: "Falta el usuario" }), {
+      return new Response(JSON.stringify({ error: "Falta el usuario (PK)" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
     if (!currentPassword || !newPassword) {
-      return new Response(JSON.stringify({ error: "Debes completar ambos campos" }), {
+      return new Response(JSON.stringify({ error: "Debes completar todos los campos" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
-    if (newPassword.length < 6) {
-      return new Response(JSON.stringify({ error: "La nueva contraseña debe tener al menos 6 caracteres" }), {
+    if (newPassword.length < 4) {
+      return new Response(JSON.stringify({ error: "La nueva contraseña es muy corta" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
-    const actual = await docClient.send(
+    // 🔍 BUSCAR USUARIO
+    const res = await docClient.send(
       new GetCommand({
         TableName,
         Key: { PK, SK: "PERFIL" },
       })
     );
 
-    if (!actual.Item) {
+    const user = res.Item;
+
+    if (!user) {
       return new Response(JSON.stringify({ error: "Usuario no encontrado" }), {
         status: 404,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
-    if (String(actual.Item.password || "") !== currentPassword) {
-      return new Response(JSON.stringify({ error: "La contraseña actual no coincide" }), {
+    // 🔐 VALIDAR PASSWORD ACTUAL
+    if (String(user.password || "") !== currentPassword) {
+      return new Response(JSON.stringify({ error: "Contraseña actual incorrecta" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
+    // ✏️ ACTUALIZAR
     const actualizado = {
-      ...actual.Item,
+      ...user,
       password: newPassword,
       mustChangePassword: false,
       fechaActualizacion: new Date().toISOString(),
@@ -78,18 +70,13 @@ export async function PUT({ request }) {
 
     return new Response(
       JSON.stringify({ mensaje: "Contraseña actualizada correctamente" }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 200 }
     );
+
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error.message || "Error al cambiar contraseña" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: error.message || "Error interno" }),
+      { status: 500 }
     );
   }
-}
+};

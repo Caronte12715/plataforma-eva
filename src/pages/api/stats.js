@@ -1,28 +1,53 @@
 export const prerender = false;
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: "AKIA57WCJ7NERYYHDUDK",
-    secretAccessKey: "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"
-  },
-});
-const docClient = DynamoDBDocumentClient.from(client);
+import { ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
 export const GET = async () => {
   try {
-    const { Items } = await docClient.send(new ScanCommand({ TableName: "PlataformaEva" }));
-    
-    // Lógica para agrupar y contar por grado
-    const conteo = Items.reduce((acc, alumno) => {
-      acc[alumno.grado] = (acc[alumno.grado] || 0) + 1;
+    const result = await docClient.send(
+      new ScanCommand({ TableName })
+    );
+
+    const items = result.Items || [];
+
+    const alumnos = items.filter(
+      (item) =>
+        item?.SK === "PERFIL" &&
+        item?.rol === "ALUMNO" &&
+        /^CPEG\d{6}$/i.test(item?.PK || "")
+    );
+
+    const porGrado = alumnos.reduce((acc, alumno) => {
+      const grado = alumno.grado || "Sin grado";
+      acc[grado] = (acc[grado] || 0) + 1;
       return acc;
     }, {});
 
-    return new Response(JSON.stringify(conteo), { status: 200 });
+    const porEstado = alumnos.reduce((acc, alumno) => {
+      const estado = alumno.estadoMatricula || "PENDIENTE";
+      acc[estado] = (acc[estado] || 0) + 1;
+      return acc;
+    }, {});
+
+    return new Response(
+      JSON.stringify({
+        total: alumnos.length,
+        porGrado,
+        porEstado,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: error.message || "Error al obtener estadísticas" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 };

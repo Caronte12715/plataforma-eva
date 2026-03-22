@@ -1,22 +1,13 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-
-const docClient = DynamoDBDocumentClient.from(client);
-const TableName = "PlataformaEva";
+import { ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
 function normalizarTexto(valor) {
   return String(valor || "").trim().toUpperCase();
 }
 
-export async function GET({ url }) {
+export const GET = async ({ url }) => {
   try {
     const docenteId = normalizarTexto(url.searchParams.get("docenteId"));
     const docenteNombre = normalizarTexto(url.searchParams.get("docenteNombre"));
@@ -41,13 +32,9 @@ export async function GET({ url }) {
 
     if (scope === "DOCENTE") {
       items = items.filter((item) => {
-        const matchById =
-          docenteId && normalizarTexto(item.docenteId) === docenteId;
-
+        const matchById = docenteId && normalizarTexto(item.docenteId) === docenteId;
         const matchByName =
-          docenteNombre &&
-          normalizarTexto(item.docenteAsignado) === docenteNombre;
-
+          docenteNombre && normalizarTexto(item.docenteAsignado) === docenteNombre;
         return matchById || matchByName;
       });
     }
@@ -60,21 +47,15 @@ export async function GET({ url }) {
 
     return new Response(JSON.stringify({ items }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     return new Response(
-      JSON.stringify({
-        error: error.message || "Error al listar matrículas",
-      }),
+      JSON.stringify({ error: error.message || "Error al listar matrículas" }),
       {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
-}
+};

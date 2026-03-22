@@ -1,48 +1,44 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
-const docClient = DynamoDBDocumentClient.from(client);
+async function eliminar(body) {
+  const PK = String(body?.PK || body?.pk || "").trim().toUpperCase();
 
-export async function DELETE({ request }) {
-  try {
-    const body = await request.json();
-    const PK = (body?.PK || "").toString().trim().toUpperCase();
-
-    if (!PK) {
-      return new Response(
-        JSON.stringify({ error: "Falta el PK de la matrícula" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    await docClient.send(
-      new DeleteCommand({
-        TableName: "PlataformaEva",
-        Key: {
-          PK,
-          SK: "PERFIL",
-        },
-      })
-    );
-
+  if (!PK) {
     return new Response(
-      JSON.stringify({ mensaje: "Matrícula eliminada correctamente" }),
+      JSON.stringify({ error: "Falta el PK de la matrícula" }),
       {
-        status: 200,
+        status: 400,
         headers: { "Content-Type": "application/json" },
       }
     );
+  }
+
+  await docClient.send(
+    new DeleteCommand({
+      TableName,
+      Key: {
+        PK,
+        SK: "PERFIL",
+      },
+    })
+  );
+
+  return new Response(
+    JSON.stringify({ mensaje: "Matrícula eliminada correctamente" }),
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+export const DELETE = async ({ request }) => {
+  try {
+    const body = await request.json();
+    return await eliminar(body);
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message || "Error al eliminar matrícula" }),
@@ -52,4 +48,19 @@ export async function DELETE({ request }) {
       }
     );
   }
-}
+};
+
+export const POST = async ({ request }) => {
+  try {
+    const body = await request.json();
+    return await eliminar(body);
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message || "Error al eliminar matrícula" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};

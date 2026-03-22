@@ -1,39 +1,39 @@
 export const prerender = false;
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: "AKIA57WCJ7NERYYHDUDK",
-    secretAccessKey: "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"
-  },
-});
-const docClient = DynamoDBDocumentClient.from(client);
+import { PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
 // OBTENER RECURSOS
 export const GET = async () => {
   try {
-    const comando = new ScanCommand({ 
-        TableName: "PlataformaEva",
-        FilterExpression: "begins_with(PK, :p)",
-        ExpressionAttributeValues: { ":p": "RECURSO#" }
+    const comando = new ScanCommand({
+      TableName,
+      FilterExpression: "begins_with(PK, :p)",
+      ExpressionAttributeValues: { ":p": "RECURSO#" }
     });
+
     const res = await docClient.send(comando);
-    return new Response(JSON.stringify(res.Items), { status: 200 });
+
+    return new Response(JSON.stringify(res.Items || []), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };
 
-// GUARDAR RECURSO (CON PROTECCIÓN DE DATOS)
+// GUARDAR RECURSO
 export const POST = async ({ request }) => {
   try {
     const body = await request.json();
     const idUnico = Date.now().toString();
 
     const comando = new PutCommand({
-      TableName: "PlataformaEva",
+      TableName,
       Item: {
         PK: `RECURSO#${idUnico}`,
         SK: "CONTENIDO",
@@ -47,10 +47,17 @@ export const POST = async ({ request }) => {
     });
 
     await docClient.send(comando);
-    return new Response(JSON.stringify({ mensaje: "Publicado exitosamente" }), { status: 200 });
+
+    return new Response(JSON.stringify({ mensaje: "Publicado exitosamente" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (error) {
-    // Esto te ayudará a ver el error real en la terminal si vuelve a fallar
-    console.error("Error detectado en AWS POST:", error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Error detectado en recursos POST:", error);
+
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };

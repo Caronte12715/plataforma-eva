@@ -1,39 +1,50 @@
 export const prerender = false;
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: "AKIA57WCJ7NERYYHDUDK", 
-    secretAccessKey: "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"
-  },
-});
-const docClient = DynamoDBDocumentClient.from(client);
+import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
 export const DELETE = async ({ request }) => {
   try {
-    const { pk } = await request.json(); // Recibe el ID (ej: ESTUDIANTE#2026001)
+    const { pk, sk } = await request.json();
 
-    const comando = new DeleteCommand({
-      TableName: "PlataformaEva",
-      Key: { 
-        PK: pk, 
-        SK: "PERFIL" 
-      },
-    });
+    const PK = String(pk || "").trim().toUpperCase();
+    const SK = String(sk || "PERFIL").trim().toUpperCase();
 
-    await docClient.send(comando);
-    
-    return new Response(JSON.stringify({ mensaje: "Registro eliminado con éxito" }), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    if (!PK) {
+      return new Response(
+        JSON.stringify({ error: "Falta el PK del registro a eliminar" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    await docClient.send(
+      new DeleteCommand({
+        TableName,
+        Key: { PK, SK },
+      })
+    );
+
+    return new Response(
+      JSON.stringify({ mensaje: "Registro eliminado con éxito" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("Error al eliminar:", error);
-    return new Response(JSON.stringify({ error: error.message }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+
+    return new Response(
+      JSON.stringify({ error: error.message || "Error al eliminar registro" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 };
+
+export const POST = DELETE;

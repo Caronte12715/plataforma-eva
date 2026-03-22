@@ -1,20 +1,8 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-  ScanCommand,
-} from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+import { PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
-const docClient = DynamoDBDocumentClient.from(client);
-const TableName = "PlataformaEva";
 const ALUMNO_BASE = 260001;
 
 function formatearCodigoAlumno(numero) {
@@ -23,9 +11,11 @@ function formatearCodigoAlumno(numero) {
 
 function normalizarResponsable(responsable) {
   if (!responsable) return "No asignado";
+
   if (typeof responsable === "object") {
     return responsable.nombre || responsable.name || "No asignado";
   }
+
   return String(responsable).trim() || "No asignado";
 }
 
@@ -44,15 +34,12 @@ async function generarSiguienteCodigoAlumno() {
     .map((item) => Number(String(item.PK).toUpperCase().replace("CPEG", "")))
     .filter((n) => Number.isFinite(n));
 
-  if (codigos.length === 0) {
-    return formatearCodigoAlumno(ALUMNO_BASE);
-  }
+  if (codigos.length === 0) return formatearCodigoAlumno(ALUMNO_BASE);
 
-  const max = Math.max(...codigos);
-  return formatearCodigoAlumno(max + 1);
+  return formatearCodigoAlumno(Math.max(...codigos) + 1);
 }
 
-export async function POST({ request }) {
+export const POST = async ({ request }) => {
   try {
     const datos = await request.json();
     const nuevoPK = await generarSiguienteCodigoAlumno();
@@ -128,13 +115,11 @@ export async function POST({ request }) {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({
-        error: error.message || "Error interno del servidor",
-      }),
+      JSON.stringify({ error: error.message || "Error al guardar matrícula" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
       }
     );
   }
-}
+};

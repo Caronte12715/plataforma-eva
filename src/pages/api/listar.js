@@ -1,25 +1,35 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+export const prerender = false;
 
-const client = new DynamoDBClient({
-  region: "us-east-2",
-  credentials: {
-    accessKeyId: import.meta.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
-const docClient = DynamoDBDocumentClient.from(client);
+import { ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, TableName } from "./dynamo.js";
 
-export async function GET() {
+export const GET = async () => {
   try {
-    const command = new ScanCommand({ 
-      TableName: "PlataformaEva",
-      FilterExpression: "SK = :sk",
-      ExpressionAttributeValues: { ":sk": "PERFIL" }
+    const res = await docClient.send(
+      new ScanCommand({
+        TableName,
+      })
+    );
+
+    const items = (res.Items || []).filter((item) => item?.SK === "PERFIL");
+
+    items.sort((a, b) => {
+      const fechaA = a.fechaRegistro || "";
+      const fechaB = b.fechaRegistro || "";
+      return fechaB.localeCompare(fechaA);
     });
-    const { Items } = await docClient.send(command);
-    return new Response(JSON.stringify(Items), { status: 200 });
+
+    return new Response(JSON.stringify(items), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: error.message || "Error al listar registros" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
-}
+};
